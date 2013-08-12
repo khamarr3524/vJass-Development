@@ -1,0 +1,123 @@
+library Dialog
+/*****************************************************************
+*   Dialog
+*   v1.0.0
+*   By khamarr3524
+*
+*   This system is used as an extension of controlled Dialog. 
+*   It simplifies the process of tracking information contained in a Dialog
+*   because all the buttons and title are set within the dialog. For detection
+*   we added a function that returns the internal dialog so that you can use
+*   it in Button Detect functions. You can loop through the buttons to detect 
+*   the pushed button by storing the instances of the dialogs in an array or
+*   by simply using one. The example does the array. Simply use a function like
+*   TestButton with TriggerAddAction(your_trigger, function TestButton) and
+*   TriggerRegisterDialogEvent(your_trigger, your_Dialog.GetDialog())
+*   
+*   Example:
+*   function TestButton takes nothing returns nothing
+*       local integer i //references player id
+*       local integer j //references button id
+*       local button tempButton // stores your_Dialog[i].GetButton(j) for evaluation
+*       local integer buttonPress // which button was pressed (in order of added to dialog)
+*       local integer trigPlayer // what player pressed it (not needed in single player)
+*       local boolean trigFound = false // when we find the button, we want to just exit the loop
+*       local button trigButton = GetClickedButton() // original button clicked
+*       loop
+*           exitwhen trigFound
+*           loop
+*               exitwhen j > D_MAX_BTNS // global constant for max buttons on Dialog
+*               exitwhen trigFound 
+*               set tempButton = your_Dialog[i].GetButton(j)
+*               if tempButton != null then
+*                   if tempButton == trigButton then
+*                       set buttonPress = j
+*                       set trigPlayer = i
+*                       set trigFound = true
+*                   endif
+*               endif
+*               set j = j + 1
+*           endloop
+*           set i = i + 1
+*           set j = 0
+*       endloop
+*   endfunction
+*
+* This function does nothing with the values, but it also doesn't have protection
+* because you should always get a positive, otherwise there was no button clicked.
+* If there was, you aren't using the Dialog system exclusively and should swap to 
+* managing all aspects with.
+    
+*****************************************************************/
+    globals
+        constant integer D_MAX_BTNS = 5 // global constant for max buttons on Dialog
+    endglobals
+    
+    struct Dialog
+        private button array DialogButton[D_MAX_BTNS] // stores instance buttons
+        private dialog InDialog //stores the internal dialog
+        private string Title // stores copy of the title
+        private player pTarget // stores the player targeted by the dialog
+        
+        method GetDialog takes nothing returns dialog 
+            return this.InDialog
+        endmethod
+        
+        method AddButton takes string s returns boolean
+            local integer i = 0
+            loop
+                exitwhen i > D_MAX_BTNS 
+                if this.DialogButton[i] == null then
+                    set this.DialogButton[i] = DialogAddButton(this.InDialog, s, i)
+                    return true
+                endif
+                set i = i + 1
+            endloop
+            return false
+        endmethod
+        
+        method GetButton takes integer index returns button
+            return DialogButton[index]
+        endmethod
+        
+        method DisplayDialog takes nothing returns nothing
+            call DialogDisplay(this.pTarget, this.InDialog, true)
+        endmethod
+        
+        method HideDialog takes nothing returns nothing
+            call DialogDisplay(this.pTarget, this.InDialog, false)
+        endmethod
+        
+        method GetTitle takes nothing returns string
+            return this.Title
+        endmethod
+        
+        method SetTitle takes string s returns nothing
+            set this.Title = s
+            call DialogSetMessage(this.InDialog, this.Title)
+        endmethod
+        
+        method destroy takes nothing returns nothing
+            local integer i = 0
+            loop
+                exitwhen i > D_MAX_BTNS
+                set this.DialogButton[i] = null
+                set i = i + 1
+            endloop
+            call DialogDestroy(this.InDialog)
+            set this.InDialog = null
+            set Title = ""
+            call this.deallocate()
+        endmethod
+        
+        static method create takes player p, string t returns thistype
+            local thistype this = thistype.allocate()
+            set this.InDialog = DialogCreate()
+            set this.pTarget = p
+            call this.SetTitle(t)
+            return this
+        endmethod
+        
+    endstruct
+    
+endlibrary

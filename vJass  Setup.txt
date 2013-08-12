@@ -1,0 +1,40 @@
+//Written in vJass for Warcraft 3: The Frozen Throne by Blizzard Entertainment.
+scope InitializeGlobals initializer init
+    
+    private function InitHeroes takes nothing returns nothing
+        local integer i
+        local location l
+        local integer iTempSpawn = 'ewsp'
+        if fPlayers == null then
+            return
+        else
+            loop
+                exitwhen i > iPlayerLimit
+                set l = GetStartLocationLoc(i)
+                set uHero[i] = CreateUnit(Player(i), iTempSpawn, GetLocationX(l), GetLocationY(l), 270.)
+                set i = i + 1
+            endloop
+        endif
+    endfunction
+    
+    private function InitForce takes nothing returns nothing
+        local integer i = 0
+        loop   
+            exitwhen i > iPlayerLimit
+            if GetPlayerSlotState(Player(i)) == PLAYER_SLOT_STATE_PLAYING and GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                call ForceAddPlayer(fPlayers, Player(i))
+            endif
+            set i = i + 1
+        endloop
+    endfunction
+            
+    private function SetGlobals takes nothing returns nothing
+        call InitForce()
+        call InitHeroes()
+    endfunction
+    
+    private function init takes nothing returns nothing
+        call SetGlobals()
+    endfunction
+    
+endscope

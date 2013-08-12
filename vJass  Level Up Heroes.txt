@@ -1,0 +1,34 @@
+//Written in vJass for Warcraft 3: The Frozen Throne by Blizzard Entertainment.
+scope LeveHeroes initializer init
+    globals
+        trigger tLevelHero = CreateTrigger()
+    endglobals
+    
+    private function LevelUp takes nothing returns nothing
+        local unit uTempHero = GetEnumUnit()
+        if IsUnitType(uTempHero, UNIT_TYPE_HERO) then
+            call SetHeroLevel(uTempHero, (GetHeroLevel(uTempHero) + 1), true)
+        endif
+        set uTempHero = null
+    endfunction
+    
+    private function LevelHeroes takes nothing returns nothing
+        local group gTempGroup
+        if iRepeated <= iRepeats then
+            call GroupEnumUnitsInRect(gTempGroup, bj_mapInitialPlayableArea, null)
+            call ForGroup(gTempGroup, function LevelUp)
+            call DestroyGroup(gTempGroup)
+            set iRepeated = iRepeated + 1
+        else
+            call DestroyTimer(tLevelUp)
+            call DestroyTrigger(tLevelHero)
+            set tLevelHero = null
+        endif
+        set gTempGroup = null
+    endfunction
+    
+    private function init takes nothing returns nothing
+        call TriggerAddAction(tLevelHero, function LevelHeroes)
+        call TriggerRegisterTimerEvent(tLevelHero, 60, true)
+    endfunction
+endscope

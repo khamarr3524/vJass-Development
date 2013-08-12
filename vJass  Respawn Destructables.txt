@@ -1,0 +1,71 @@
+//Written in vJass for Warcraft 3: The Frozen Throne by Blizzard Entertainment.
+library RespawnDestructables requires TimerUtils
+    globals
+        trigger enumTrig
+    endglobals
+    struct ReviveDest
+        static constant real rTime = 15.
+        
+        real rX
+        real rY
+        real rZ
+        real rAng = 270.
+        timer tRespawnTimer
+        integer iType
+        
+        private method GetDestroyedDestructable takes destructable d returns nothing
+            //Gets given destructable information and stores it in local instance
+            set rX = GetDestructableX(d)
+            set rY = GetDestructableY(d)
+            set iType = GetDestructableTypeId(d)
+        endmethod
+        
+        private static method Respawn takes nothing returns nothing
+        //repsawns the strucutre, then destroys instance
+            local thistype this = GetTimerData(GetExpiredTimer())
+            call CreateDestructable(.iType, .rX, .rY, .rAng, 1., 1)
+            call this.destroy()
+        endmethod
+        
+        private method RespawnDestruct takes nothing returns nothing
+        //Starts timer to declare recreation
+            if rX == 0 and rY == 0 and iType == 0 then
+                call BJDebugMsg("START SPAWN CALLED BEFORE INITIALIZED")
+            endif
+            call TimerStart(tRespawnTimer, rTime, false, function thistype.Respawn)
+        endmethod
+                
+        method InitRespawn takes nothing returns nothing
+            call this.RespawnDestruct()
+        endmethod
+        static method create takes destructable d returns thistype
+            local thistype this = thistype.allocate()
+            call this.GetDestroyedDestructable(d)
+            set tRespawnTimer = NewTimerEx(this)
+            return this
+        endmethod
+        
+        private method destroy takes nothing returns nothing
+            call DestroyTimer(tRespawnTimer)
+            set tRespawnTimer = null
+            call .deallocate()
+        endmethod
+    endstruct
+    
+    private function RespawnDestructable takes nothing returns nothing
+        local ReviveDest r = ReviveDest.create(GetTriggerWidget())
+        call r.InitRespawn()
+    endfunction
+    
+    private function RegisterEnumDestructables takes nothing returns nothing
+        local destructable enumD = GetEnumDestructable()
+        call TriggerRegisterDeathEvent(enumTrig, enumD)
+        set enumD = null
+    endfunction
+    private function init takes nothing returns nothing
+        set enumTrig = CreateTrigger()
+        call EnumDestructablesInRect(bj_mapInitialPlayableArea, null, function RegisterEnumDestructables)
+        call TriggerAddAction(enumTrig, function RespawnDestructable)
+        set enumTrig = null
+    endfunction
+endlibrary
