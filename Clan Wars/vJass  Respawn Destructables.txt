@@ -1,4 +1,3 @@
-//Written in vJass for Warcraft 3: The Frozen Throne by Blizzard Entertainment.
 library RespawnDestructables requires TimerUtils
     globals
         trigger enumTrig
@@ -53,7 +52,7 @@ library RespawnDestructables requires TimerUtils
     endstruct
     
     private function RespawnDestructable takes nothing returns nothing
-        local ReviveDest r = ReviveDest.create(GetTriggerWidget())
+        local ReviveDest r = ReviveDest.create(GetDyingDestructable())
         call r.InitRespawn()
     endfunction
     

@@ -4,16 +4,16 @@ library Dialog
 *   v1.0.0
 *   By khamarr3524
 *
-*   This system is used as an extension of controlled Dialog. 
+*   This system is used as an extension of controlled Dialog.
 *   It simplifies the process of tracking information contained in a Dialog
 *   because all the buttons and title are set within the dialog. For detection
 *   we added a function that returns the internal dialog so that you can use
-*   it in Button Detect functions. You can loop through the buttons to detect 
+*   it in Button Detect functions. You can loop through the buttons to detect
 *   the pushed button by storing the instances of the dialogs in an array or
 *   by simply using one. The example does the array. Simply use a function like
 *   TestButton with TriggerAddAction(your_trigger, function TestButton) and
 *   TriggerRegisterDialogEvent(your_trigger, your_Dialog.GetDialog())
-*   
+*  
 *   Example:
 *   function TestButton takes nothing returns nothing
 *       local integer i //references player id
@@ -27,7 +27,7 @@ library Dialog
 *           exitwhen trigFound
 *           loop
 *               exitwhen j > D_MAX_BTNS // global constant for max buttons on Dialog
-*               exitwhen trigFound 
+*               exitwhen trigFound
 *               set tempButton = your_Dialog[i].GetButton(j)
 *               if tempButton != null then
 *                   if tempButton == trigButton then
@@ -45,21 +45,21 @@ library Dialog
 *
 * This function does nothing with the values, but it also doesn't have protection
 * because you should always get a positive, otherwise there was no button clicked.
-* If there was, you aren't using the Dialog system exclusively and should swap to 
+* If there was, you aren't using the Dialog system exclusively and should swap to
 * managing all aspects with.
-    
+   
 *****************************************************************/
     globals
-        constant integer D_MAX_BTNS = 5 // global constant for max buttons on Dialog
+        constant integer D_MAX_BTNS = 5
     endglobals
     
     struct Dialog
-        private button array DialogButton[D_MAX_BTNS] // stores instance buttons
-        private dialog InDialog //stores the internal dialog
-        private string Title // stores copy of the title
-        private player pTarget // stores the player targeted by the dialog
+        private button array DialogButton[D_MAX_BTNS]
+        private dialog InDialog
+        private string Title
+        private player pTarget
         
-        method GetDialog takes nothing returns dialog 
+        method GetDialog takes nothing returns dialog
             return this.InDialog
         endmethod
         

@@ -1,0 +1,46 @@
+scope InitializeGlobals initializer init
+    
+    private function InitHeroes takes nothing returns nothing
+        local integer i = 0
+        local location l
+        local integer iTempSpawn = 'ewsp'
+        if fPlayers == null then
+            return
+        else
+            loop
+                exitwhen i > iPlayerLimit
+                if PlayerIsPlaying[i] then
+                    set l = GetStartLocationLoc(i)
+                    call CreateUnit(Player(i), iTempSpawn, GetLocationX(l), GetLocationY(l), 270.)
+                    set uHero[i] = bj_lastCreatedUnit
+                endif
+                set i = i + 1
+            endloop
+        endif
+    endfunction
+    
+    private function InitForce takes nothing returns nothing
+        local integer i = 0
+        loop
+            exitwhen i > iPlayerLimit
+            if GetPlayerSlotState(Player(i)) == PLAYER_SLOT_STATE_PLAYING and GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                call ForceAddPlayer(fPlayers, Player(i))
+                set PlayerIsPlaying[i] = true
+                set playerCount = playerCount + 1
+            else
+                set PlayerIsPlaying[i] = false
+            endif
+            set i = i + 1
+        endloop
+        call InitHeroes()
+    endfunction
+            
+    private function SetGlobals takes nothing returns nothing
+        call InitForce()
+    endfunction
+    
+    function init takes nothing returns nothing
+        call SetGlobals()
+    endfunction
+    
+endscope

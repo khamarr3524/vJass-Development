@@ -1,0 +1,85 @@
+library GameModes initializer init requires Selection, TimerUtils
+    globals
+        private trigger CheckDialogComplete = CreateTrigger()
+    endglobals
+    
+    private function RemoveTrig takes nothing returns nothing
+        call DestroyTrigger(CheckDialogComplete)
+        set CheckDialogComplete = null
+    endfunction
+    
+    private function Structure takes nothing returns nothing
+        local integer i = 0
+        local integer no = 0
+        local integer three = 0
+        local integer five = 0
+        loop
+            exitwhen i > iPlayerLimit
+            if PlayerIsPlaying[i] then
+                if StructureLimit[i] == 0 then
+                    set no = no + 1
+                elseif StructureLimit[i] == 1 then
+                    set three = three + 1
+                else
+                    set five  = five + 1
+                endif
+            endif
+            set i = i + 1
+        endloop
+        if no > three and no > five then
+            set PickedStructureLimit = 0
+        elseif three > no and three > five then
+            set PickedStructureLimit = 3
+        elseif five > no and five > three then
+            set PickedStructureLimit = 5
+        else
+            set PickedStructureLimit = 3
+        endif
+        call RemoveTrig()
+    endfunction 
+    
+    private function HeroMode takes nothing returns nothing
+        local integer i = 0
+        local integer AP = 0
+        local integer AR = 0
+        loop
+            exitwhen i > iPlayerLimit
+            if PlayerIsPlaying[i] then
+                if ModePick[i] == 0 then
+                    set AP = AP + 1
+                else
+                    set AR = AR + 1
+                endif
+            endif
+            set i = i + 1
+        endloop
+        if AP >= AR then
+            set PickedHeroMode = "AP"
+        else
+            set PickedHeroMode = "AR"
+        endif
+    endfunction
+    
+    private function DialogComplete takes nothing returns nothing
+        local integer i = 0
+        local integer done = 0
+        loop
+            exitwhen i > iPlayerLimit
+            if PlayerIsPlaying[i] then
+                if ModePick[i] != null and StructureLimit[i] != null then
+                    set done = done + 1
+                endif
+            endif
+            set i = i + 1
+        endloop
+        if done == playerCount then
+            call HeroMode()
+            call Structure()
+        endif
+    endfunction
+    
+    private function init takes nothing returns nothing
+    call TriggerRegisterTimerEvent(CheckDialogComplete, .09, true)
+    call TriggerAddAction(CheckDialogComplete, function DialogComplete)
+    endfunction
+endlibrary
