@@ -1,0 +1,19 @@
+globals
+    constant integer iTimeout = 60
+    constant integer iPlayerLimit = 3
+    constant integer iLevelCap = 10
+    boolean array PlayerIsPlaying[3]
+    force fPlayers = CreateForce()
+    hashtable hStructures
+    integer iRepeats = 9
+    integer playerCount = 0
+    integer iRepeated = 0
+    integer PickedStructureLimit
+    integer array ModePick[3]
+    integer array RandomHero[26]
+    integer array StructureLimit[3]
+    integer array iLevels[3]
+    string PickedHeroMode
+    timer tLevelUp = CreateTimer()
+    unit array uHero[3]
+endglobals

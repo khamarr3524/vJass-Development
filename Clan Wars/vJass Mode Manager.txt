@@ -1,0 +1,98 @@
+library GameMode initializer init requires Dialog
+    //Not functional. This is a work in progress.
+    //This library is almost useless unless you are just looking.
+    globals 
+        private boolean array DialogRegistered[3]
+        private Dialog array APDialog[3]
+        private integer array ARPickedHeroes[2]
+        private string array PickType[3]
+        private trigger DialogTrig
+    endglobals
+    
+    private function HeroSpawn takes integer pIndex returns nothing
+        
+    endfunction
+    
+    private function ModeAR takes nothing returns nothing
+        local integer i 
+        loop
+            exitwhen i > iPlayerLimit
+            set PickType[i] = "Random"
+            set i = i + 1
+        endloop
+    endfunction
+    
+    private function APDialogButton takes nothing returns nothing
+        local integer i = 0
+        local integer j = 0
+        local button tempButton
+        local integer buttonPress
+        local integer trigPlayer
+        local boolean trigFound = false
+        local button trigButton = GetClickedButton()
+        loop
+            exitwhen i > iPlayerLimit
+            exitwhen trigFound
+            loop
+                exitwhen j > 1
+                exitwhen trigFound
+                set tempButton = APDialog[i].GetButton(j)
+                if tempButton != null then
+                    if tempButton == trigButton then
+                        set buttonPress = j
+                        set trigPlayer = i
+                        set trigFound = true
+                    endif
+                endif
+                set j = j + 1
+            endloop
+            set i = i + 1
+            set j = 0
+        endloop
+        if buttonPress == 0 then
+            set PickType[trigPlayer] = "Strength"
+        elseif buttonPress == 1 then
+            set PickType[trigPlayer] = "Agility"
+        elseif buttonPress == 2 then
+            set PickType[trigPlayer] = "Intellect"
+        else
+            set PickType[trigPlayer] = "Random"
+        endif
+        
+        call HeroSpawn(trigPlayer)
+    endfunction
+    
+    private function APDialogCreate takes nothing returns nothing
+        local player p = GetEnumPlayer()
+        local integer pIndex = GetPlayerId(p)
+        local Dialog d = Dialog.create(p, "Hero Pick")
+        call d.AddButton("Strength") //Button Index 0
+        call d.AddButton("Agility") //Button Index 1
+        call d.AddButton("Intellect") //Button Index 2
+        call d.AddButton("Random") //Button Index 3
+        call d.DisplayDialog()
+        call TriggerRegisterDialogEvent(DialogTrig, d.GetDialog())
+        set APDialog[GetPlayerId(p)] = d
+    endfunction
+    
+    private function ModeAP takes nothing returns nothing
+        local force tempForce = CreateForce()
+        set tempForce = fPlayers
+        call ForForce(tempForce, function APDialogCreate)
+        call DestroyForce(tempForce)
+        set tempForce = null
+    endfunction
+    
+    function RunModeSetup takes nothing returns nothing
+        if PickedHeroMode == "AP" then
+            call ModeAP()
+        else
+            call ModeAR()
+        endif
+    endfunction
+    
+    private function init takes nothing returns nothing
+        call TriggerAddAction(DialogTrig, function APDialogButton)
+    endfunction
+
+endlibrary
