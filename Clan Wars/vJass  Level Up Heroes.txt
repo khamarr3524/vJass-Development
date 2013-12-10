@@ -1,8 +1,20 @@
 //Written in vJass for Warcraft 3: The Frozen Throne by Blizzard Entertainment.
-scope LeveHeroes initializer init
+scope LevelHeroes initializer init
     globals
         trigger tLevelHero = CreateTrigger()
     endglobals
+    
+    private function Announce takes nothing returns nothing
+        local player p = GetEnumPlayer()
+        call //DisplayFunction 
+    endfunction
+    
+    private function MaxLevel takes nothing returns nothing
+        local force f = fPlayers
+        call ForForce(f, function Announce)
+        call DestroyForce(f)
+        set f = null
+    endfunction
     
     private function LevelUp takes nothing returns nothing
         local unit uTempHero = GetEnumUnit()
@@ -23,6 +35,7 @@ scope LeveHeroes initializer init
             call DestroyTimer(tLevelUp)
             call DestroyTrigger(tLevelHero)
             set tLevelHero = null
+            call MaxLevel()
         endif
         set gTempGroup = null
     endfunction
@@ -30,5 +43,6 @@ scope LeveHeroes initializer init
     private function init takes nothing returns nothing
         call TriggerAddAction(tLevelHero, function LevelHeroes)
         call TriggerRegisterTimerEvent(tLevelHero, 60, true)
+        call DisableTrigger(tLevelHero)
     endfunction
 endscope
