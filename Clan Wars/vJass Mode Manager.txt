@@ -24,10 +24,11 @@ library GameMode initializer init requires Dialog
         local integer i
         loop
             exitwhen i > iPlayerLimit
+            //We don't need to store these units because HeroSelect does.
             call hs.spawnToken(Player(i))
             set i = i+1
         endloop
-        call hs.
+        call hs.Initialize()
     endfunction
     
     function RunModeSetup takes nothing returns nothing
@@ -36,6 +37,10 @@ library GameMode initializer init requires Dialog
         else
             call ModeAR()
         endif
+    endfunction
+    
+    private function init takes nothing returns
+        hs = HeroSelect.new()
     endfunction
     
 endlibrary
